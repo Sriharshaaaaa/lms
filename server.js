@@ -24,6 +24,9 @@ app.get("/", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 
+const courseRoutes = require("./routes/course");
+app.use("/api/courses", courseRoutes);
+
 console.log("Loaded PORT:", process.env.PORT);
 const PORT = 5000; // use hardcoded value for now
 
