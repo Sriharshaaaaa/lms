@@ -3,12 +3,14 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 exports.signup = async (req, res) => {
-  const { email, password, name } = req.body;
+  const { email, password, name, is_admin } = req.body;
 
   // input validity
   if (!email || !password || !name) {
     return res.status(400).json({ message: "Please fill all the fields" });
   }
+
+  const isAdminFlag = is_admin === true || is_admin === "true";
 
   //check if user exists
   const userExists = await pool.query("SELECT * FROM users WHERE email = $1", [
@@ -23,8 +25,8 @@ exports.signup = async (req, res) => {
 
   //inserting the user into the db
   const newUser = await pool.query(
-    "INSERT INTO users (email, password, name) VALUES ($1, $2, $3) RETURNING id,email,name,is_admin",
-    [email, hashed, name]
+    "INSERT INTO users (email, password, name,is_admin) VALUES ($1, $2, $3,$4) RETURNING id,email,name,is_admin",
+    [email, hashed, name, isAdminFlag]
   );
 
   //create JWT token
