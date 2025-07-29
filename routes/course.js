@@ -1,14 +1,23 @@
-const express= require('express');
-const router= express.Router();
+const express = require("express");
+const router = express.Router();
 
-const {createCourse,getAllCourses,getCourseById} = require('../controllers/courseController');
-const {authenticateJWT,requireAdmin} = require('../middleware/auth');
+const { requireCourseOwnership } = require("../middleware/auth");
+const {
+  createCourse,
+  getAllCourses,
+  getCourseById,
+  updateCourse,
+  deleteCourse,
+} = require("../controllers/courseController");
+const { authenticateJWT, requireAdmin } = require("../middleware/auth");
 
 //only admins can create
-router.post('/',authenticateJWT,requireAdmin,createCourse);
+router.post("/", authenticateJWT, requireAdmin, createCourse);
 //public:list all
-router.get('/',getAllCourses);
+router.get("/", getAllCourses);
 //public:get course
-router.get('/:id',getCourseById);
+router.get("/:id", getCourseById);
 
+router.put("/:id", authenticateJWT, requireCourseOwnership, updateCourse);
+router.delete("/:id", authenticateJWT, requireCourseOwnership, deleteCourse);
 module.exports = router;

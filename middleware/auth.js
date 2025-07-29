@@ -28,22 +28,33 @@ exports.requireCourseOwnership = async (req, res, next) => {
 exports.authenticateJWT = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
-    return res.status(401).json({ message: "Authorization header is missing" });
+    return res.status(401).json({
+      message:
+        "Authorization header is missing. Please provide a token in the format: 'Authorization: Bearer <token>'",
+    });
   }
 
-  const token = authHeader.split(" ")[1];
+  const parts = authHeader.split(" ");
+  if (parts.length !== 2 || parts[0] !== "Bearer" || !parts[1]) {
+    return res.status(401).json({
+      message:
+        "Malformed Authorization header. Format should be: 'Authorization: Bearer <token>'",
+    });
+  }
+
+  const token = parts[1];
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
     req.user = payload;
     next();
   } catch (err) {
     console.error("JWT verification failed:", err);
-    return res.status(403).json({ message: "Invalid token" });
+    return res.status(403).json({ message: "Invalid or expired token" });
   }
 };
 
 exports.requireAdmin = (req, res, next) => {
-  if (req.user.role !== "admin") {
+  if (!req.user.is_admin) {
     return res
       .status(403)
       .json({ message: "Access denied, admin role required" });
