@@ -26,11 +26,33 @@ exports.createCourse = async (req, res) => {
 
 //list all courses
 exports.getAllCourses = async (req, res) => {
+  let { limit, offset } = req.query;
+
+  //default values:10 per page, start from 0
+  limit = parseInt(limit) || 10;
+  offset = parseInt(offset) || 0;
+
+  // Limit page size to prevent abuse (do NOT allow 10,000+ per page)
+  if (limit > 50) limit = 50;
+
   try {
+    // Count total courses for frontend reference
+    const countResult = await pool.query("SELECT COUNT(*) FROM courses");
+    const total = parseInt(countResult.rows[0].count, 10);
+
+    // Get paginated courses
     const result = await pool.query(
-      "select * from courses order by created_at desc"
+      "SELECT * FROM courses ORDER BY created_at DESC LIMIT $1 OFFSET $2",
+      [limit, offset]
     );
-    res.status(200).json(result.rows);
+
+    // Return pagination info & data
+    res.json({
+      total, // total results
+      limit,
+      offset, // current page info
+      courses: result.rows,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
