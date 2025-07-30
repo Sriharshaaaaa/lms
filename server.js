@@ -27,9 +27,6 @@ app.use("/api/auth", authRoutes);
 const courseRoutes = require("./routes/course");
 app.use("/api/courses", courseRoutes);
 
-const validateCourse = require("../middleware/validateCourse");
-router.post("/", authenticateJWT, createCourse, validateCourse);
-
 const enrollmentRoutes = require("./routes/enrollment");
 app.use("/api", enrollmentRoutes);
 
@@ -46,7 +43,7 @@ const apiLimiter = require("./middleware/rateLimiter");
 app.use("/api", apiLimiter);
 
 console.log("Loaded PORT:", process.env.PORT);
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 try {
   app.listen(PORT, () => {
