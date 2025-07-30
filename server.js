@@ -1,9 +1,9 @@
 const express = require("express");
 const dotenv = require("dotenv");
-const pool = require("./config/db");
 dotenv.config();
 
 const app = express();
+const pool = require("./config/db");
 const authRoutes = require("./routes/auth");
 
 process.on("unhandledRejection", (err) => {
